@@ -1,5 +1,6 @@
 # Registro del equipo
 Equipo: Los Jensen
+
 Integrantes y responsabilidades:
 Andres Escobar Hincapie
 Jensul Villalba Gaitan
