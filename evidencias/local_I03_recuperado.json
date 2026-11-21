@@ -1,0 +1,111 @@
+{
+  "url": "http://127.0.0.1:8080/pedidos",
+  "resultado": "REVISAR",
+  "instancias_observadas": [
+    "app2",
+    "app3"
+  ],
+  "instancias_esperadas": [
+    "app1",
+    "app2",
+    "app3"
+  ],
+  "consultas": [
+    {
+      "consulta": 1,
+      "fecha_utc": "2026-11-21T14:27:54.576650+00:00",
+      "http": 200,
+      "instancia": "app2",
+      "version": "datos-v1",
+      "milisegundos": 37.83
+    },
+    {
+      "consulta": 2,
+      "fecha_utc": "2026-11-21T14:27:54.614488+00:00",
+      "http": 200,
+      "instancia": "app3",
+      "version": "datos-v1",
+      "milisegundos": 10.73
+    },
+    {
+      "consulta": 3,
+      "fecha_utc": "2026-11-21T14:27:54.625233+00:00",
+      "http": 200,
+      "instancia": "app2",
+      "version": "datos-v1",
+      "milisegundos": 10.66
+    },
+    {
+      "consulta": 4,
+      "fecha_utc": "2026-11-21T14:27:54.635895+00:00",
+      "http": 200,
+      "instancia": "app3",
+      "version": "datos-v1",
+      "milisegundos": 9.66
+    },
+    {
+      "consulta": 5,
+      "fecha_utc": "2026-11-21T14:27:54.645557+00:00",
+      "http": 200,
+      "instancia": "app2",
+      "version": "datos-v1",
+      "milisegundos": 9.5
+    },
+    {
+      "consulta": 6,
+      "fecha_utc": "2026-11-21T14:27:54.655064+00:00",
+      "http": 200,
+      "instancia": "app3",
+      "version": "datos-v1",
+      "milisegundos": 20.87
+    },
+    {
+      "consulta": 7,
+      "fecha_utc": "2026-11-21T14:27:54.675938+00:00",
+      "http": 200,
+      "instancia": "app2",
+      "version": "datos-v1",
+      "milisegundos": 9.56
+    },
+    {
+      "consulta": 8,
+      "fecha_utc": "2026-11-21T14:27:54.685508+00:00",
+      "http": 200,
+      "instancia": "app3",
+      "version": "datos-v1",
+      "milisegundos": 23.55
+    },
+    {
+      "consulta": 9,
+      "fecha_utc": "2026-11-21T14:27:54.709067+00:00",
+      "http": 200,
+      "instancia": "app2",
+      "version": "datos-v1",
+      "milisegundos": 10.28
+    },
+    {
+      "consulta": 10,
+      "fecha_utc": "2026-11-21T14:27:54.719352+00:00",
+      "http": 200,
+      "instancia": "app3",
+      "version": "datos-v1",
+      "milisegundos": 9.86
+    },
+    {
+      "consulta": 11,
+      "fecha_utc": "2026-11-21T14:27:54.729221+00:00",
+      "http": 200,
+      "instancia": "app2",
+      "version": "datos-v1",
+      "milisegundos": 27.26
+    },
+    {
+      "consulta": 12,
+      "fecha_utc": "2026-11-21T14:27:54.756489+00:00",
+      "http": 200,
+      "instancia": "app3",
+      "version": "datos-v1",
+      "milisegundos": 31.5
+    }
+  ]
+}

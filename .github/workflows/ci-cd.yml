@@ -1,0 +1,102 @@
+# CI/CD de Nodo Ruta
+#  - En cada PR y push: construye la imagen, la prueba contra un PostgreSQL
+#    temporal (incluido el 503 ante datos dañados) y la escanea con Trivy.
+#  - En push a main: publica la imagen en GHCR y, si existe la variable
+#    AWS_DEPLOY_ROLE_ARN, la despliega en EKS. Si el rollout falla, vuelve
+#    automáticamente a la versión anterior (rollback).
+name: ci-cd
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  IMAGEN: ghcr.io/andres062004/los-jensen
+  AWS_REGION: us-east-1
+  CLUSTER: nodoruta-eks
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: nodoruta
+          POSTGRES_USER: nodoruta
+          POSTGRES_PASSWORD: solo-para-ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U nodoruta" --health-interval 3s
+          --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construir imagen
+        run: docker build -f app/Dockerfile -t nodoruta:ci .
+
+      - name: Prueba de humo contra PostgreSQL
+        run: |
+          DB="-e DB_HOST=127.0.0.1 -e DB_NAME=nodoruta -e DB_USER=nodoruta -e DB_PASSWORD=solo-para-ci -e DB_SSLMODE=disable"
+          docker run --rm --network host $DB nodoruta:ci python datos_db.py cargar
+          docker run -d --name app --network host $DB -e INSTANCE_ID=ci-1 nodoruta:ci
+          for i in $(seq 1 20); do curl -fs http://127.0.0.1:8080/health && break; sleep 1; done
+          echo; curl -fs http://127.0.0.1:8080/pedidos | tee pedidos.json; echo
+          test "$(jq '.pedidos | length' pedidos.json)" = "6"
+          test "$(jq -r '.version' pedidos.json)" = "datos-v1"
+          curl -fs -D - -o /dev/null http://127.0.0.1:8080/pedidos | grep -i '^x-instancia: ci-1'
+          docker run --rm --network host $DB nodoruta:ci python datos_db.py simular-error
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/health)" = "503"
+          echo "Prueba de humo OK"
+      - name: Registros de la app
+        if: always()
+        run: docker logs app || true
+
+      - name: Escaneo de vulnerabilidades (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: nodoruta:ci
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Publicar en GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker tag nodoruta:ci $IMAGEN:sha-${GITHUB_SHA::7}
+          docker tag nodoruta:ci $IMAGEN:main
+          docker push $IMAGEN:sha-${GITHUB_SHA::7}
+          docker push $IMAGEN:main
+
+  deploy:
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.AWS_DEPLOY_ROLE_ARN != ''
+    runs-on: ubuntu-latest
+    environment: produccion
+    permissions:
+      contents: read
+      id-token: write # OIDC hacia AWS, sin llaves guardadas
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Desplegar con rollback automático
+        run: |
+          aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER
+          NUEVA=$IMAGEN:sha-${GITHUB_SHA::7}
+          kubectl -n nodoruta set image deployment/nodoruta app=$NUEVA
+          if ! kubectl -n nodoruta rollout status deployment/nodoruta --timeout=180s; then
+            echo "::error::El rollout de $NUEVA falló; volviendo a la versión anterior"
+            kubectl -n nodoruta rollout undo deployment/nodoruta
+            kubectl -n nodoruta rollout status deployment/nodoruta --timeout=180s
+            exit 1
+          fi
+          kubectl -n nodoruta get pods -o wide

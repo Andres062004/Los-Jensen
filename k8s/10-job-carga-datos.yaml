@@ -1,0 +1,31 @@
+# Crea las tablas en RDS y carga los 6 pedidos semilla si la base está vacía.
+# El ConfigMap nodoruta-config y el Secret nodoruta-db los crea scripts/desplegar.ps1
+# a partir de los outputs de Terraform (la contraseña nunca queda en un archivo).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: carga-datos
+  namespace: nodoruta
+spec:
+  backoffLimit: 4
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        app: nodoruta-carga
+    spec:
+      restartPolicy: OnFailure
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: carga
+          image: __IMAGEN__
+          command: ["python", "datos_db.py", "cargar", "--si-vacia"]
+          envFrom:
+            - configMapRef: { name: nodoruta-config }
+            - secretRef: { name: nodoruta-db }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }

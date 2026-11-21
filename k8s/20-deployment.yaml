@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodoruta
+  namespace: nodoruta
+  labels:
+    app: nodoruta
+spec:
+  replicas: 3
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0 # una versión mala no tumba las réplicas sanas
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: nodoruta
+  template:
+    metadata:
+      labels:
+        app: nodoruta
+    spec:
+      # Repartir los pods entre zonas y nodos: si cae una zona, siguen pods en la otra.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector: { matchLabels: { app: nodoruta } }
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector: { matchLabels: { app: nodoruta } }
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: app
+          image: __IMAGEN__
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            # Identificador de instancia = pod@nodo (downward API)
+            - name: POD_NAME
+              valueFrom: { fieldRef: { fieldPath: metadata.name } }
+            - name: NODE_NAME
+              valueFrom: { fieldRef: { fieldPath: spec.nodeName } }
+          envFrom:
+            - configMapRef: { name: nodoruta-config }
+            - secretRef: { name: nodoruta-db }
+          # readiness: si no lee la base, el pod sale del balanceo (Service y ALB).
+          readinessProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+          # liveness: solo reinicia si el proceso se cuelga. No usa /health para no
+          # reiniciar todos los pods cuando falla la base (fallo compartido).
+          livenessProbe:
+            httpGet: { path: /vivo, port: http }
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }

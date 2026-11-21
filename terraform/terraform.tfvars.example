@@ -1,0 +1,14 @@
+# Copiar a terraform.tfvars (no se sube al repositorio) y ajustar.
+region      = "us-east-1"
+admin_cidrs = ["0.0.0.0/0"] # mejor: las IP públicas del equipo, ej. ["181.50.1.2/32", "190.60.3.4/32"]
+
+# Usuarios IAM de los otros 4 integrantes (quien ejecuta apply ya es admin):
+equipo_admin_arns = [
+  # "arn:aws:iam::123456789012:user/i2-datos",
+  # "arn:aws:iam::123456789012:user/i3-cicd",
+  # "arn:aws:iam::123456789012:user/i4-k8s",
+  # "arn:aws:iam::123456789012:user/i5-observabilidad",
+]
+
+# node_instance_type = "m7i-flex.large"  # si el plan gratuito rechaza t3.medium
+# node_count         = 3                 # si quedan pods en Pending por falta de capacidad
