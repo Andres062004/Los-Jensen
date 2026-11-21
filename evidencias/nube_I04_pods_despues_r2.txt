@@ -1,0 +1,8 @@
+NAME                        READY   STATUS        RESTARTS   AGE
+carga-datos-fc2hr           0/1     Completed     0          33m
+nodoruta-56894db74f-7q64z   1/1     Terminating   0          6m34s
+nodoruta-56894db74f-cw8df   1/1     Terminating   0          6m32s
+nodoruta-56894db74f-wq8zv   1/1     Terminating   0          6m36s
+nodoruta-b796f4cd9-9sxqz    1/1     Running       0          7s
+nodoruta-b796f4cd9-c8ckn    1/1     Running       0          6s
+nodoruta-b796f4cd9-n8mvt    1/1     Running       0          9s

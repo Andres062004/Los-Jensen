@@ -1,0 +1,5 @@
+NAME                       READY   STATUS      RESTARTS   AGE     IP             NODE                          NOMINATED NODE   READINESS GATES
+carga-datos-fc2hr          0/1     Completed   0          24m     10.20.22.228   ip-10-20-19-17.ec2.internal   <none>           <none>
+nodoruta-5c5466db6-2rqvb   1/1     Running     0          8m39s   10.20.25.50    ip-10-20-19-17.ec2.internal   <none>           <none>
+nodoruta-5c5466db6-4wm2q   1/1     Running     0          8m41s   10.20.1.79     ip-10-20-6-223.ec2.internal   <none>           <none>
+nodoruta-5c5466db6-5hz5q   1/1     Running     0          8m43s   10.20.10.165   ip-10-20-6-223.ec2.internal   <none>           <none>

@@ -44,7 +44,7 @@ $resumen = @(
 )
 if ($fallas) {
     $primera = $fallas[0].Hora; $ultima = $fallas[-1].Hora
-    $resumen += "Primera falla: {0:HH:mm:ss}   Última falla: {1:HH:mm:ss}   Ventana de error: {2:N0} s" -f $primera, $ultima, ($ultima - $primera).TotalSeconds + 1
+    $resumen += "Primera falla: {0:HH:mm:ss}   Última falla: {1:HH:mm:ss}   Ventana de error: {2:N0} s" -f $primera, $ultima, (($ultima - $primera).TotalSeconds + 1)
 }
 $resumen | ForEach-Object { Write-Host $_ }
 $resumen | Add-Content -Encoding utf8 $Salida
