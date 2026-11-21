@@ -8,6 +8,7 @@ Juan Pablo Agudelo Arango
 Santiago Zapata Oquendo
 Yeison David Garcia Arismendy
 Danilo Andres Suarez Higuita 
+
 Fecha:
 Modalidad: nube / local / diseño pendiente
 Arquitectura elegida y motivo:
