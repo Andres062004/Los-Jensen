@@ -1,0 +1,80 @@
+# Ensayo local de la arquitectura de nube, sin costos:
+#   PostgreSQL (hace de RDS) + 3 instancias de la app + NGINX (hace de ALB).
+# Uso, desde la raíz del paquete:
+#   copy local\.env.example local\.env   (y cambiar la contraseña)
+#   docker compose -f local/compose.yaml --env-file local/.env up -d --build
+#   python scripts/verificar_servicio.py --esperadas app1,app2,app3 --salida evidencias/local_inicio.json
+name: nodoruta-local
+
+x-app: &app
+  image: nodoruta:local # la construye el servicio carga-datos
+  pull_policy: never
+  environment: &env
+    DB_HOST: db
+    DB_NAME: nodoruta
+    DB_USER: nodoruta
+    DB_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD en local/.env}
+    DB_SSLMODE: disable
+  healthcheck:
+    test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2).read()"]
+    interval: 5s
+    timeout: 3s
+    retries: 3
+    start_period: 5s
+  read_only: true
+  depends_on:
+    carga-datos:
+      condition: service_completed_successfully
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: nodoruta
+      POSTGRES_USER: nodoruta
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD en local/.env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nodoruta -d nodoruta"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  carga-datos:
+    image: nodoruta:local
+    build:
+      context: ..
+      dockerfile: app/Dockerfile
+    environment: *env
+    command: ["python", "datos_db.py", "cargar", "--si-vacia"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app1:
+    <<: *app
+    environment: { <<: *env, INSTANCE_ID: app1 }
+  app2:
+    <<: *app
+    environment: { <<: *env, INSTANCE_ID: app2 }
+  app3:
+    <<: *app
+    environment: { <<: *env, INSTANCE_ID: app3 }
+
+  proxy:
+    image: nginx:1.28-alpine
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - type: bind
+        source: ./nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+    depends_on:
+      app1: { condition: service_healthy }
+      app2: { condition: service_healthy }
+      app3: { condition: service_healthy }
+
+volumes:
+  pgdata:

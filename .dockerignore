@@ -6,3 +6,10 @@ respaldos/
 evidencias/
 data/
 .git/
+# Agregado para el despliegue en la nube
+**/__pycache__
+**/.terraform
+terraform/
+k8s/
+docs/
+local/.env

@@ -1,2 +1,15 @@
-﻿__pycache__/
+__pycache__/
 *.pyc
+# Secretos y estado de Terraform (el estado contiene la contraseña de RDS)
+.env
+local/.env
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+.terraform.lock.hcl.bak
+# Artefactos del laboratorio
+data/
+respaldos/
+*.tfplan

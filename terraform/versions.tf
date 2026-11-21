@@ -1,0 +1,45 @@
+terraform {
+  required_version = ">= 1.6"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.95"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.17"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
+  }
+
+  # Estado local (terraform.tfstate). Contiene la contraseña de RDS: no se sube al repo.
+  # Para trabajo en equipo se puede mover a un bucket S3 con bloqueo (ver docs).
+}
+
+provider "aws" {
+  region = var.region
+
+  default_tags {
+    tags = {
+      Proyecto   = var.proyecto
+      Reto       = "EstudIA-16-NodoRuta"
+      Gestionado = "terraform"
+    }
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--region", var.region]
+    }
+  }
+}
