@@ -1,0 +1,21 @@
+# Prometheus raspa /metrics de cada pod de Nodo Ruta (a través del Service "nodoruta").
+# Cada serie lleva la etiqueta pod=<nombre>, que usan los paneles "por instancia".
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nodoruta
+  namespace: monitoring
+  labels:
+    app: nodoruta
+    release: kps
+spec:
+  namespaceSelector:
+    matchNames: [nodoruta]
+  selector:
+    matchLabels:
+      app: nodoruta
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 5s

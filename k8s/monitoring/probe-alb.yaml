@@ -1,0 +1,25 @@
+# Sondeo externo: el Blackbox exporter pide http://<ALB>/health cada 5 s, igual que un usuario.
+# probe_success = 1 (200) o 0 (error, 5xx o timeout). Prometheus le pone job="probe/monitoring/alb".
+#
+# __ALB__ se reemplaza al aplicar (monitoring-install.ps1 lo lee del Ingress o de -Alb),
+# así no hay que editar este archivo en cada sesión.
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: alb
+  namespace: monitoring
+  labels:
+    app: nodoruta
+    release: kps
+spec:
+  interval: 5s
+  scrapeTimeout: 4s
+  module: http_2xx
+  prober:
+    url: blackbox-prometheus-blackbox-exporter.monitoring.svc:9115
+  targets:
+    staticConfig:
+      static:
+        - http://__ALB__/health
+      labels:
+        servicio: nodoruta
