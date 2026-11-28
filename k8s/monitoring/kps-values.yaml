@@ -73,8 +73,9 @@ grafana:
     enabled: false
   defaultDashboardsTimezone: browser
   resources:
-    requests: { cpu: 50m, memory: 128Mi }
-    limits: { memory: 256Mi }
+    # 256Mi no alcanza: Grafana 12 se reinicia por OOMKilled al arrancar.
+    requests: { cpu: 50m, memory: 256Mi }
+    limits: { memory: 512Mi }
   # El datasource de Prometheus (uid "prometheus") lo crea el chart; se agrega Loki.
   additionalDataSources:
     - name: Loki
