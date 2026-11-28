@@ -1,0 +1,60 @@
+Última hora restaurable: 11/27/2026 22:23:32
+== [22:26:52] Restaurando nodoruta-db a 2026-11-28T03:16:22Z como nodoruta-db-rest-11280326
+== Esperando a que la instancia esté disponible (suele tardar 10-20 minutos)
+== [22:41:06] Conectando la app a nodoruta-db-rest-11280326.csbqc4uw2q5z.us-east-1.rds.amazonaws.com
+configmap/nodoruta-config patched
+deployment.apps/nodoruta restarted
+Waiting for deployment "nodoruta" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "nodoruta" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "nodoruta" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "nodoruta" rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for deployment "nodoruta" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "nodoruta" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "nodoruta" rollout to finish: 1 old replicas are pending termination...
+deployment "nodoruta" successfully rolled out
+{
+  "version": "datos-v1",
+  "total_pedidos": 6,
+  "sha256": "554cb0d746371cc4c0b64450ff882fd9e98a5c505cfc7801d6c56871b16af771",
+  "pedidos": [
+    {
+      "id": "PED-001",
+      "zona": "Norte",
+      "estado": "En ruta"
+    },
+    {
+      "id": "PED-002",
+      "zona": "Centro",
+      "estado": "Entregado"
+    },
+    {
+      "id": "PED-003",
+      "zona": "Sur",
+      "estado": "Pendiente"
+    },
+    {
+      "id": "PED-004",
+      "zona": "Occidente",
+      "estado": "En ruta"
+    },
+    {
+      "id": "PED-005",
+      "zona": "Oriente",
+      "estado": "Entregado"
+    },
+    {
+      "id": "PED-006",
+      "zona": "Centro",
+      "estado": "En preparación"
+    }
+  ]
+}
+
+Inicio:                 2026-11-27 22:26:52Z
+Base restaurada lista:  2026-11-27 22:41:06Z  (854 s)
+App conectada (fin):    2026-11-27 22:41:16Z
+RTO total medido:       865 s
+
+Compare version y sha256 con el estado previo a la alteración.
+Antes de terraform destroy, borre la copia restaurada:
+  aws rds delete-db-instance --region us-east-1 --db-instance-identifier nodoruta-db-rest-11280326 --skip-final-snapshot

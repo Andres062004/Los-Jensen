@@ -1,0 +1,2 @@
+Prueba de acceso a nodoruta-db.csbqc4uw2q5z.us-east-1.rds.amazonaws.com:5432 desde Internet - Sat Nov 28 01:21:06 UTC 2026
+RESULTADO: NO conecta (TcpTestSucceeded equivalente: False)

@@ -1,0 +1,92 @@
+{
+  "url": "http://nodoruta-alb-418402534.us-east-1.elb.amazonaws.com/pedidos",
+  "resultado": "CUMPLE",
+  "instancias_observadas": [
+    "nodoruta-674586b8fc-65n44@ip-10-20-27-121.ec2.internal",
+    "nodoruta-674586b8fc-fwjnm@ip-10-20-27-121.ec2.internal",
+    "nodoruta-674586b8fc-rm7c9@ip-10-20-12-150.ec2.internal"
+  ],
+  "instancias_esperadas": [],
+  "consultas": [
+    {
+      "consulta": 1,
+      "fecha_utc": "2026-11-28T03:42:21.282647+00:00",
+      "http": 200,
+      "instancia": "nodoruta-674586b8fc-65n44@ip-10-20-27-121.ec2.internal",
+      "version": "datos-v1",
+      "milisegundos": 371.35
+    },
+    {
+      "consulta": 2,
+      "fecha_utc": "2026-11-28T03:42:21.654013+00:00",
+      "http": 200,
+      "instancia": "nodoruta-674586b8fc-rm7c9@ip-10-20-12-150.ec2.internal",
+      "version": "datos-v1",
+      "milisegundos": 375.62
+    },
+    {
+      "consulta": 3,
+      "fecha_utc": "2026-11-28T03:42:22.029642+00:00",
+      "http": 200,
+      "instancia": "nodoruta-674586b8fc-fwjnm@ip-10-20-27-121.ec2.internal",
+      "version": "datos-v1",
+      "milisegundos": 414.61
+    },
+    {
+      "consulta": 4,
+      "fecha_utc": "2026-11-28T03:42:22.444263+00:00",
+      "http": 200,
+      "instancia": "nodoruta-674586b8fc-65n44@ip-10-20-27-121.ec2.internal",
+      "version": "datos-v1",
+      "milisegundos": 304.12
+    },
+    {
+      "consulta": 5,
+      "fecha_utc": "2026-11-28T03:42:22.748397+00:00",
+      "http": 200,
+      "instancia": "nodoruta-674586b8fc-65n44@ip-10-20-27-121.ec2.internal",
+      "version": "datos-v1",
+      "milisegundos": 394.16
+    },
+    {
+      "consulta": 6,
+      "fecha_utc": "2026-11-28T03:42:23.142573+00:00",
+      "http": 200,
+      "instancia": "nodoruta-674586b8fc-65n44@ip-10-20-27-121.ec2.internal",
+      "version": "datos-v1",
+      "milisegundos": 318.8
+    },
+    {
+      "consulta": 7,
+      "fecha_utc": "2026-11-28T03:42:23.461386+00:00",
+      "http": 200,
+      "instancia": "nodoruta-674586b8fc-rm7c9@ip-10-20-12-150.ec2.internal",
+      "version": "datos-v1",
+      "milisegundos": 319.41
+    },
+    {
+      "consulta": 8,
+      "fecha_utc": "2026-11-28T03:42:23.780822+00:00",
+      "http": 200,
+      "instancia": "nodoruta-674586b8fc-rm7c9@ip-10-20-12-150.ec2.internal",
+      "version": "datos-v1",
+      "milisegundos": 306.98
+    },
+    {
+      "consulta": 9,
+      "fecha_utc": "2026-11-28T03:42:24.087806+00:00",
+      "http": 200,
+      "instancia": "nodoruta-674586b8fc-fwjnm@ip-10-20-27-121.ec2.internal",
+      "version": "datos-v1",
+      "milisegundos": 354.99
+    },
+    {
+      "consulta": 10,
+      "fecha_utc": "2026-11-28T03:42:24.442813+00:00",
+      "http": 200,
+      "instancia": "nodoruta-674586b8fc-65n44@ip-10-20-27-121.ec2.internal",
+      "version": "datos-v1",
+      "milisegundos": 255.34
+    }
+  ]
+}

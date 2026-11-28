@@ -1,0 +1,11 @@
+[
+    "available",
+    false,
+    false,
+    1,
+    true
+]
+[
+    "nodoruta/db",
+    "arn:aws:secretsmanager:us-east-1:811815656853:secret:nodoruta/db-yx7eop"
+]
