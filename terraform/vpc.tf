@@ -23,6 +23,9 @@ module "vpc" {
   database_subnets = [cidrsubnet(var.vpc_cidr, 8, 200), cidrsubnet(var.vpc_cidr, 8, 201)]
 
   create_database_subnet_group = true
+  # Tabla de rutas propia para las subredes de RDS, solo con la ruta local (sin
+  # salida a Internet). Sin subredes privadas el módulo no tiene otra tabla que asociar.
+  create_database_subnet_route_table = true
   map_public_ip_on_launch      = true
   enable_nat_gateway           = false
   enable_dns_hostnames         = true

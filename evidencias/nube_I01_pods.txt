@@ -1,0 +1,8 @@
+NAME                          STATUS   ROLES    AGE     VERSION                ZONE
+ip-10-20-19-17.ec2.internal   Ready    <none>   8m24s   v1.34.12-eks-9adbfea   us-east-1b
+ip-10-20-6-223.ec2.internal   Ready    <none>   8m24s   v1.34.12-eks-9adbfea   us-east-1a
+NAME                        READY   STATUS      RESTARTS   AGE     IP             NODE                          NOMINATED NODE   READINESS GATES
+carga-datos-fc2hr           0/1     Completed   0          2m37s   10.20.22.228   ip-10-20-19-17.ec2.internal   <none>           <none>
+nodoruta-79d47c4659-2czpm   1/1     Running     0          2m27s   10.20.31.226   ip-10-20-19-17.ec2.internal   <none>           <none>
+nodoruta-79d47c4659-wdcfp   1/1     Running     0          2m27s   10.20.24.183   ip-10-20-19-17.ec2.internal   <none>           <none>
+nodoruta-79d47c4659-xl76x   1/1     Running     0          2m27s   10.20.11.158   ip-10-20-6-223.ec2.internal   <none>           <none>

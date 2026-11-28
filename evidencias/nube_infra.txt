@@ -1,0 +1,10 @@
+# 2026-11-21T11:40:40.0025894-05:00  cuenta 811815656853 us-east-1
+
+## kubectl get nodes -L zona,tipo
+NAME                          STATUS   ROLES    AGE     VERSION                ZONE         INSTANCE-TYPE
+ip-10-20-19-17.ec2.internal   Ready    <none>   5m34s   v1.34.12-eks-9adbfea   us-east-1b   c7i-flex.large
+ip-10-20-6-223.ec2.internal   Ready    <none>   5m34s   v1.34.12-eks-9adbfea   us-east-1a   c7i-flex.large
+
+## kubectl -n kube-system get deploy aws-load-balancer-controller
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
+aws-load-balancer-controller   1/1     1            1           4m48s
