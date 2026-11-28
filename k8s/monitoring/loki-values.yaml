@@ -32,6 +32,14 @@ singleBinary:
   # Sin PVC: el clúster no tiene driver EBS CSI. Los logs viven en un emptyDir.
   persistence:
     enabled: false
+  # Sin PVC el chart no monta nada en /var/loki y el contenedor es de solo lectura:
+  # se monta un emptyDir para los chunks, el índice y el compactor.
+  extraVolumes:
+    - name: datos-loki
+      emptyDir: {}
+  extraVolumeMounts:
+    - name: datos-loki
+      mountPath: /var/loki
   resources:
     requests: { cpu: 50m, memory: 128Mi }
     limits: { memory: 512Mi }
