@@ -107,8 +107,8 @@ class Handler(BaseHTTPRequestHandler):
                 elif ruta == "/health":
                     response = {"estado": "ok", "instancia": INSTANCE, "version_datos": version}
                 else:
-                    response = {"servicio": "Nodo Ruta - caso ficticio", "instancia": INSTANCE,
-                                "rutas": ["/health", "/pedidos"]}
+                    response = {"servicio": "Nodo Ruta - caso ficticio", "version_app": "1.1",
+                                "instancia": INSTANCE, "rutas": ["/health", "/pedidos"]}
             except ErrorDatos as e:
                 status, response = 503, {"estado": "error_datos", "instancia": INSTANCE}
                 self._error = str(e)
