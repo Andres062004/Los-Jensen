@@ -1,0 +1,120 @@
+=== EVIDENCIA CD AUTOMATICO (GitHub Actions -> GHCR -> EKS por OIDC) ===
+Fecha verificacion UTC: 2026-11-28T13:36:54Z
+Workflow run: Merge pull request #4 from Andres062004/chore/version-app (#8, commit aed07fc)
+
+--- Imagen desplegada en deployment/nodoruta ---
+ghcr.io/andres062004/los-jensen:sha-aed07fc
+
+--- Historial de rollout ---
+deployment.apps/nodoruta 
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+3         <none>
+4         <none>
+5         <none>
+6         <none>
+
+--- Pods en namespace nodoruta ---
+NAME                        READY   STATUS      RESTARTS   AGE     IP             NODE                          NOMINATED NODE   READINESS GATES
+carga-datos-hgrmx           0/1     Completed   0          21m     10.20.7.142    ip-10-20-0-6.ec2.internal     <none>           <none>
+nodoruta-58df4546c5-6gcq7   1/1     Running     0          8m23s   10.20.7.142    ip-10-20-0-6.ec2.internal     <none>           <none>
+nodoruta-58df4546c5-dbkls   1/1     Running     0          8m25s   10.20.23.224   ip-10-20-26-43.ec2.internal   <none>           <none>
+nodoruta-58df4546c5-fxdsp   1/1     Running     0          8m27s   10.20.16.39    ip-10-20-26-43.ec2.internal   <none>           <none>
+
+--- Respuesta GET / (ALB) ---
+{"servicio": "Nodo Ruta - caso ficticio", "version_app": "1.1", "instancia": "nodoruta-58df4546c5-fxdsp@ip-10-20-26-43.ec2.internal", "rutas": ["/health", "/pedidos"]}
+
+--- Respuesta GET /health (ALB) ---
+{"estado": "ok", "instancia": "nodoruta-58df4546c5-dbkls@ip-10-20-26-43.ec2.internal", "version_datos": "datos-v1"}
+
+
+--- Log completo del job deploy (GitHub Actions) ---
+2026-11-28T13:28:24.9753954Z Current runner version: '2.338.2'
+2026-11-28T13:28:24.9769751Z ##[group]Runner Image Provisioner
+2026-11-28T13:28:24.9770330Z Hosted Compute Agent
+2026-11-28T13:28:24.9770675Z Version: 20261111.635
+2026-11-28T13:28:24.9771035Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+2026-11-28T13:28:24.9771482Z Build Date: 2026-11-11T01:49:01Z
+2026-11-28T13:28:24.9772092Z Worker ID: {17e3a3b6-0933-422a-b5cf-3f127f754bb0}
+2026-11-28T13:28:24.9772512Z Region: westus3
+2026-11-28T13:28:24.9772840Z Cloud: Azure
+2026-11-28T13:28:24.9773151Z ##[endgroup]
+2026-11-28T13:28:24.9774172Z ##[group]Operating System
+2026-11-28T13:28:24.9774554Z Ubuntu
+2026-11-28T13:28:24.9774843Z 26.04.1
+2026-11-28T13:28:24.9775176Z LTS
+2026-11-28T13:28:24.9775476Z ##[endgroup]
+2026-11-28T13:28:24.9776024Z ##[group]Runner Image
+2026-11-28T13:28:24.9776434Z Image: ubuntu-26.04
+2026-11-28T13:28:24.9776795Z Version: 20261122.9.1
+2026-11-28T13:28:24.9777530Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261122.9/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-28T13:28:24.9778406Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261122.9
+2026-11-28T13:28:24.9778933Z ##[endgroup]
+2026-11-28T13:28:24.9779562Z ##[group]GITHUB_TOKEN Permissions
+2026-11-28T13:28:24.9780879Z Contents: read
+2026-11-28T13:28:24.9781200Z Metadata: read
+2026-11-28T13:28:24.9781608Z ##[endgroup]
+2026-11-28T13:28:24.9783052Z Secret source: Actions
+2026-11-28T13:28:24.9783635Z Cache mode: write
+2026-11-28T13:28:24.9784165Z Prepare workflow directory
+2026-11-28T13:28:25.0013943Z Prepare all required actions
+2026-11-28T13:28:25.0043477Z Getting action download info
+2026-11-28T13:28:25.2736610Z Download action repository 'aws-actions/configure-aws-credentials@v4' (SHA:7474bc4690e29a8392af63c5b98e7449536d5c3a)
+2026-11-28T13:28:26.0830081Z Complete job name: deploy
+2026-11-28T13:28:26.1346117Z ##[group]Run aws-actions/configure-aws-credentials@v4
+2026-11-28T13:28:26.1346561Z with:
+2026-11-28T13:28:26.1346880Z   role-to-assume: arn:aws:iam::811815656853:role/nodoruta-github-deploy
+2026-11-28T13:28:26.1347276Z   aws-region: us-east-1
+2026-11-28T13:28:26.1347544Z   audience: sts.amazonaws.com
+2026-11-28T13:28:26.1347823Z   output-env-credentials: true
+2026-11-28T13:28:26.1348146Z env:
+2026-11-28T13:28:26.1348382Z   IMAGEN: ghcr.io/andres062004/los-jensen
+2026-11-28T13:28:26.1348683Z   AWS_REGION: us-east-1
+2026-11-28T13:28:26.1348936Z   CLUSTER: nodoruta-eks
+2026-11-28T13:28:26.1349183Z ##[endgroup]
+2026-11-28T13:28:26.5826864Z Assuming role with OIDC
+2026-11-28T13:28:26.8144755Z Authenticated as assumedRoleId AROA32A733WK2GIQZA4SO:GitHubActions
+2026-11-28T13:28:26.9084696Z ##[group]Run aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER
+2026-11-28T13:28:26.9086156Z [36;1maws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER[0m
+2026-11-28T13:28:26.9087326Z [36;1mNUEVA=$IMAGEN:sha-${GITHUB_SHA::7}[0m
+2026-11-28T13:28:26.9088413Z [36;1mkubectl -n nodoruta set image deployment/nodoruta app=$NUEVA[0m
+2026-11-28T13:28:26.9089844Z [36;1mif ! kubectl -n nodoruta rollout status deployment/nodoruta --timeout=180s; then[0m
+2026-11-28T13:28:26.9091327Z [36;1m  echo "::error::El rollout de $NUEVA falló; volviendo a la versión anterior"[0m
+2026-11-28T13:28:26.9092733Z [36;1m  kubectl -n nodoruta rollout undo deployment/nodoruta[0m
+2026-11-28T13:28:26.9093973Z [36;1m  kubectl -n nodoruta rollout status deployment/nodoruta --timeout=180s[0m
+2026-11-28T13:28:26.9095011Z [36;1m  exit 1[0m
+2026-11-28T13:28:26.9095560Z [36;1mfi[0m
+2026-11-28T13:28:26.9096155Z [36;1mkubectl -n nodoruta get pods -o wide[0m
+2026-11-28T13:28:26.9125950Z shell: /usr/bin/bash -e {0}
+2026-11-28T13:28:26.9126611Z env:
+2026-11-28T13:28:26.9127179Z   IMAGEN: ghcr.io/andres062004/los-jensen
+2026-11-28T13:28:26.9127938Z   AWS_REGION: us-east-1
+2026-11-28T13:28:26.9128542Z   CLUSTER: nodoruta-eks
+2026-11-28T13:28:26.9129162Z   AWS_DEFAULT_REGION: us-east-1
+2026-11-28T13:28:26.9130022Z   AWS_ACCESS_KEY_ID: ***
+2026-11-28T13:28:26.9130869Z   AWS_SECRET_ACCESS_KEY: ***
+2026-11-28T13:28:26.9144572Z   AWS_SESSION_TOKEN: ***
+2026-11-28T13:28:26.9145197Z ##[endgroup]
+2026-11-28T13:28:29.9126548Z Added new context arn:aws:eks:us-east-1:811815656853:cluster/nodoruta-eks to /home/runner/.kube/config
+2026-11-28T13:28:32.9400574Z deployment.apps/nodoruta image updated
+2026-11-28T13:28:33.6774135Z Waiting for deployment "nodoruta" rollout to finish: 1 out of 3 new replicas have been updated...
+2026-11-28T13:28:34.5659953Z Waiting for deployment "nodoruta" rollout to finish: 1 out of 3 new replicas have been updated...
+2026-11-28T13:28:34.6405684Z Waiting for deployment "nodoruta" rollout to finish: 1 out of 3 new replicas have been updated...
+2026-11-28T13:28:34.6662610Z Waiting for deployment "nodoruta" rollout to finish: 2 out of 3 new replicas have been updated...
+2026-11-28T13:28:36.5592752Z Waiting for deployment "nodoruta" rollout to finish: 2 out of 3 new replicas have been updated...
+2026-11-28T13:28:36.6166520Z Waiting for deployment "nodoruta" rollout to finish: 2 out of 3 new replicas have been updated...
+2026-11-28T13:28:36.6340852Z Waiting for deployment "nodoruta" rollout to finish: 1 old replicas are pending termination...
+2026-11-28T13:28:39.0387552Z Waiting for deployment "nodoruta" rollout to finish: 1 old replicas are pending termination...
+2026-11-28T13:28:39.1854441Z deployment "nodoruta" successfully rolled out
+2026-11-28T13:28:39.8764284Z NAME                        READY   STATUS        RESTARTS   AGE   IP             NODE                          NOMINATED NODE   READINESS GATES
+2026-11-28T13:28:39.8765145Z carga-datos-hgrmx           0/1     Completed     0          13m   10.20.7.142    ip-10-20-0-6.ec2.internal     <none>           <none>
+2026-11-28T13:28:39.8765791Z nodoruta-58df4546c5-6gcq7   1/1     Running       0          3s    10.20.7.142    ip-10-20-0-6.ec2.internal     <none>           <none>
+2026-11-28T13:28:39.8766452Z nodoruta-58df4546c5-dbkls   1/1     Running       0          5s    10.20.23.224   ip-10-20-26-43.ec2.internal   <none>           <none>
+2026-11-28T13:28:39.8766996Z nodoruta-58df4546c5-fxdsp   1/1     Running       0          7s    10.20.16.39    ip-10-20-26-43.ec2.internal   <none>           <none>
+2026-11-28T13:28:39.8767413Z nodoruta-674586b8fc-j72tr   1/1     Terminating   0          13m   10.20.4.165    ip-10-20-0-6.ec2.internal     <none>           <none>
+2026-11-28T13:28:39.8767848Z nodoruta-674586b8fc-tdxnl   1/1     Terminating   0          13m   10.20.14.244   ip-10-20-0-6.ec2.internal     <none>           <none>
+2026-11-28T13:28:39.8768731Z nodoruta-674586b8fc-xmbr7   1/1     Terminating   0          13m   10.20.23.118   ip-10-20-26-43.ec2.internal   <none>           <none>
+2026-11-28T13:28:39.8883956Z Post job cleanup.
+2026-11-28T13:28:39.9618622Z Cleaning up orphan processes
+2026-11-28T13:28:39.9986103Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: aws-actions/configure-aws-credentials@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

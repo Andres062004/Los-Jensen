@@ -1,0 +1,50 @@
+﻿[2026-11-28T13:49:57Z] === PRUEBA MALA VERSION (PARTE B: EKS + ROLLBACK) ===
+[2026-11-28T13:50:02Z] --- 1. Imagen inicial ---
+[2026-11-28T13:50:04Z] ghcr.io/andres062004/los-jensen:sha-aed07fc
+[2026-11-28T13:50:04Z] --- 2. Aplicando imagen inexistente (:no-existe) ---
+[2026-11-28T13:50:06Z] deployment.apps/nodoruta image updated
+[2026-11-28T13:50:06Z] --- 3. Rollout status con timeout=60s (se espera fallo/timeout) ---
+[2026-11-28T13:51:08Z] ExitCode: 1
+[2026-11-28T13:51:08Z] Waiting for deployment "nodoruta" rollout to finish: 1 out of 3 new replicas have been updated...
+kubectl : error: timed out waiting for the condition
+En línea: 20 Carácter: 14
++ ... rollFail = (kubectl -n nodoruta rollout status deployment/nodoruta -- ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (error: timed ou...r the condition:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+[2026-11-28T13:51:08Z] --- 4. Estado de pods durante la falla (los 3 viejos deben seguir Running) ---
+[2026-11-28T13:51:10Z] NAME                        READY   STATUS         RESTARTS   AGE   IP             NODE                          NOMINATED NODE   READINESS GATES
+carga-datos-hgrmx           0/1     Completed      0          35m   10.20.7.142    ip-10-20-0-6.ec2.internal     <none>           <none>
+nodoruta-58df4546c5-6gcq7   1/1     Running        0          22m   10.20.7.142    ip-10-20-0-6.ec2.internal     <none>           <none>
+nodoruta-58df4546c5-dbkls   1/1     Running        0          22m   10.20.23.224   ip-10-20-26-43.ec2.internal   <none>           <none>
+nodoruta-58df4546c5-fxdsp   1/1     Running        0          22m   10.20.16.39    ip-10-20-26-43.ec2.internal   <none>           <none>
+nodoruta-8679d8d8cd-897rn   0/1     ErrImagePull   0          63s   10.20.14.244   ip-10-20-0-6.ec2.internal     <none>           <none>
+[2026-11-28T13:51:10Z] --- 5. Ejecutando rollout undo ---
+[2026-11-28T13:51:11Z] kubectl : Warning: resource deployments/nodoruta was previously managed with 'kubectl apply'. Rolling back will not 
+update the kubectl.kubernetes.io/last-applied-configuration annotation, which may cause unexpected behavior on future 
+'kubectl apply' operations. Consider using 'kubectl apply' with your previous configuration file instead.
+En línea: 30 Carácter: 13
++ $undoOut = (kubectl -n nodoruta rollout undo deployment/nodoruta 2>&1 ...
++             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Warning: resour...n file instead.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+deployment.apps/nodoruta rolled back
+[2026-11-28T13:51:11Z] --- 6. Esperando estabilizacion del rollback ---
+[2026-11-28T13:51:13Z] ExitCode: 0
+[2026-11-28T13:51:13Z] deployment "nodoruta" successfully rolled out
+[2026-11-28T13:51:13Z] --- 7. Estado final (imagen, pods e historial) ---
+[2026-11-28T13:51:15Z] Imagen final: ghcr.io/andres062004/los-jensen:sha-aed07fc
+[2026-11-28T13:51:16Z] NAME                        READY   STATUS      RESTARTS   AGE   IP             NODE                          NOMINATED NODE   READINESS GATES
+carga-datos-hgrmx           0/1     Completed   0          35m   10.20.7.142    ip-10-20-0-6.ec2.internal     <none>           <none>
+nodoruta-58df4546c5-6gcq7   1/1     Running     0          22m   10.20.7.142    ip-10-20-0-6.ec2.internal     <none>           <none>
+nodoruta-58df4546c5-dbkls   1/1     Running     0          22m   10.20.23.224   ip-10-20-26-43.ec2.internal   <none>           <none>
+nodoruta-58df4546c5-fxdsp   1/1     Running     0          22m   10.20.16.39    ip-10-20-26-43.ec2.internal   <none>           <none>
+[2026-11-28T13:51:18Z] deployment.apps/nodoruta 
+REVISION  CHANGE-CAUSE
+2         <none>
+3         <none>
+4         <none>
+5         <none>
+7         <none>
+8         <none>
