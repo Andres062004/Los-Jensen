@@ -1,0 +1,5 @@
+NAME                       READY   STATUS      RESTARTS   AGE
+carga-datos-fc2hr          0/1     Completed   0          26m
+nodoruta-5c5466db6-2rqvb   1/1     Running     0          10m
+nodoruta-5c5466db6-4wm2q   1/1     Running     0          10m
+nodoruta-5c5466db6-5hz5q   1/1     Running     0          10m
