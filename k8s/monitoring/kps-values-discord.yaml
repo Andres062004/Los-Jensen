@@ -1,0 +1,11 @@
+# Sobrescribe el receptor "equipo" para enviar a un webhook de Discord.
+# Se aplica después de kps-values.yaml:  ./scripts/monitoring-install.ps1 -Receptor discord
+# La URL (https://discord.com/api/webhooks/...) va en el Secret alertmanager-webhook, nunca aquí.
+alertmanager:
+  config:
+    receivers:
+      - name: "null"
+      - name: equipo
+        discord_configs:
+          - webhook_url_file: /etc/alertmanager/secrets/alertmanager-webhook/url
+            send_resolved: true

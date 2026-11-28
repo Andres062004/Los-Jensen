@@ -1,0 +1,103 @@
+# Valores de kube-prometheus-stack (Prometheus, Alertmanager, Grafana, kube-state-metrics).
+# Instalación: ./scripts/monitoring-install.ps1
+#
+# Decisiones:
+# - Sin persistencia: el clúster no tiene el driver EBS CSI y los datos solo se necesitan
+#   durante la sesión. Si el pod de Prometheus se reinicia, se pierden las métricas.
+# - Recursos pequeños: 2 nodos t3.medium compartidos con la app.
+# - EKS no expone scheduler, controller-manager ni etcd; se desactivan para que sus
+#   alertas "Down" no inunden el canal del equipo.
+
+# Las alertas por defecto se conservan (sirven en Prometheus → Alerts), pero solo las de
+# Nodo Ruta (label servicio=nodoruta) llegan al webhook del equipo.
+kubeControllerManager: { enabled: false }
+kubeScheduler: { enabled: false }
+kubeEtcd: { enabled: false }
+kubeProxy: { enabled: false }
+
+prometheusOperator:
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { memory: 192Mi }
+
+prometheus:
+  prometheusSpec:
+    retention: 24h
+    scrapeInterval: 15s
+    evaluationInterval: 15s
+    # Leer los ServiceMonitor, Probe y PrometheusRule propios aunque no tengan release=kps.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    # Sin storageSpec = emptyDir (sin persistencia).
+    resources:
+      requests: { cpu: 150m, memory: 384Mi }
+      limits: { memory: 1Gi }
+
+alertmanager:
+  alertmanagerSpec:
+    # Secret con la URL del webhook (lo crea monitoring-install.ps1, no está en el repo).
+    # Se monta en /etc/alertmanager/secrets/alertmanager-webhook/url
+    secrets: [alertmanager-webhook]
+    resources:
+      requests: { cpu: 10m, memory: 32Mi }
+      limits: { memory: 128Mi }
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: "null"
+      group_by: [alertname]
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 1h
+      routes:
+        - receiver: equipo
+          matchers: ['servicio = "nodoruta"']
+    receivers:
+      - name: "null"
+      # Webhook genérico (https://webhook.site para la demo).
+      # Para Discord se sobrescribe con kps-values-discord.yaml (monitoring-install.ps1 -Receptor discord).
+      - name: equipo
+        webhook_configs:
+          - url_file: /etc/alertmanager/secrets/alertmanager-webhook/url
+            send_resolved: true
+
+grafana:
+  admin:
+    existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
+  persistence:
+    enabled: false
+  defaultDashboardsTimezone: browser
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { memory: 256Mi }
+  # El datasource de Prometheus (uid "prometheus") lo crea el chart; se agrega Loki.
+  additionalDataSources:
+    - name: Loki
+      uid: loki
+      type: loki
+      access: proxy
+      url: http://loki.monitoring.svc.cluster.local:3100
+      jsonData:
+        maxLines: 1000
+  # El sidecar carga los ConfigMap con la etiqueta grafana_dashboard=1
+  # (monitoring-install.ps1 crea uno con dashboard-nodoruta.json).
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+
+kube-state-metrics:
+  resources:
+    requests: { cpu: 10m, memory: 32Mi }
+    limits: { memory: 128Mi }
+
+prometheus-node-exporter:
+  resources:
+    requests: { cpu: 10m, memory: 24Mi }
+    limits: { memory: 64Mi }

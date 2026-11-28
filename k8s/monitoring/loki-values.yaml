@@ -1,0 +1,49 @@
+# Valores de grafana/loki: un solo pod (SingleBinary), sin persistencia ni componentes extra.
+# Grafana y Alloy lo usan en http://loki.monitoring.svc.cluster.local:3100
+deploymentMode: SingleBinary
+
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: filesystem
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+  limits_config:
+    retention_period: 24h
+  compactor:
+    retention_enabled: true
+    delete_request_store: filesystem
+  pattern_ingester:
+    enabled: false
+  ruler:
+    enable_api: false
+
+singleBinary:
+  replicas: 1
+  # Sin PVC: el clúster no tiene driver EBS CSI. Los logs viven en un emptyDir.
+  persistence:
+    enabled: false
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { memory: 512Mi }
+
+# Los modos SimpleScalable y Distributed quedan en 0.
+backend: { replicas: 0 }
+read: { replicas: 0 }
+write: { replicas: 0 }
+
+# Sin gateway, canario ni caché: menos pods y menos memoria.
+gateway: { enabled: false }
+lokiCanary: { enabled: false }
+test: { enabled: false } # la prueba de Helm requiere el canario
+chunksCache: { enabled: false }
+resultsCache: { enabled: false }

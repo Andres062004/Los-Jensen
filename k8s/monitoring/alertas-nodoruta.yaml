@@ -1,0 +1,57 @@
+# Alertas de Nodo Ruta. La etiqueta servicio=nodoruta las enruta al webhook del equipo
+# (ver alertmanager.config en kps-values.yaml).
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: nodoruta
+  namespace: monitoring
+  labels:
+    app: nodoruta
+    release: kps
+spec:
+  groups:
+    - name: nodoruta.continuidad
+      interval: 15s
+      rules:
+        - alert: InstanciaNoDisponible
+          expr: kube_deployment_status_replicas_available{namespace="nodoruta",deployment="nodoruta"} < 3
+          for: 1m
+          labels:
+            severity: warning
+            servicio: nodoruta
+          annotations:
+            summary: "Nodo Ruta tiene {{ $value }} de 3 réplicas disponibles"
+            description: "El Deployment nodoruta lleva más de 1 minuto con menos de 3 réplicas disponibles. El servicio sigue con las restantes, pero perdió redundancia."
+
+        - alert: ServicioCaido
+          expr: probe_success{job="probe/monitoring/alb"} == 0
+          for: 30s
+          labels:
+            severity: critical
+            servicio: nodoruta
+          annotations:
+            summary: "Nodo Ruta no responde en el ALB"
+            description: "El sondeo externo a {{ $labels.instance }} falla desde hace más de 30 s (no responde 200)."
+
+        - alert: TasaErrores5xx
+          expr: |
+            sum(rate(nodoruta_requests_total{status=~"5.."}[2m]))
+              /
+            sum(rate(nodoruta_requests_total[2m])) > 0.05
+          for: 2m
+          labels:
+            severity: critical
+            servicio: nodoruta
+          annotations:
+            summary: "Más del 5 % de las solicitudes responden 5xx ({{ $value | humanizePercentage }})"
+            description: "Suele indicar un fallo de datos compartido (RDS caída o datos dañados): afecta a todas las réplicas a la vez."
+
+        - alert: VersionDatosInconsistente
+          expr: count(count by (version_datos) (nodoruta_datos_info)) > 1
+          for: 1m
+          labels:
+            severity: warning
+            servicio: nodoruta
+          annotations:
+            summary: "Las instancias sirven {{ $value }} versiones de datos distintas"
+            description: "No todas las réplicas leen la misma versión de datos. Revisar el panel 'Versión de datos por pod'."
