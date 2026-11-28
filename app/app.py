@@ -99,6 +99,7 @@ class Handler(BaseHTTPRequestHandler):
             status, response = 404, {"error": "Ruta no disponible", "instancia": INSTANCE}
         else:
             try:
+                raise ErrorDatos("Mala version simulada: /health y /pedidos devuelven 503 para probar bloqueo del CI")
                 data = leer_datos()
                 version = data.get("version")
                 status = 200
