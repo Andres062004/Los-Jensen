@@ -83,16 +83,26 @@ Si las dos fuentes difieren, se informa la de `sondear.ps1` (más precisa) y se 
 
 ## 6. Resultados por prueba
 
-| Prueba | Qué se observó | RTO servicio | Tiempo hasta 3 Ready | Alerta | Evidencia | Estado |
-|---|---|---|---|---|---|---|
-| I01 | [PENDIENTE] | — | — | — | `grafana_I01.png` | [PENDIENTE] |
-| I02a | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] | `grafana_I02a.png`, `rto_I02a.txt` | [PENDIENTE] |
-| I02b | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] | `grafana_I02b.png`, `rto_I02b.txt` | [PENDIENTE] |
-| I03 | [PENDIENTE] | — | [PENDIENTE] | — | `grafana_I03.png` | [PENDIENTE] |
-| I04 | [PENDIENTE] | [PENDIENTE] | — | — | `grafana_I04.png` | [PENDIENTE] |
-| I05 | 3 pods 0/1 Ready con 503 "Sin versión de datos" (reportado en el grupo); resto [PENDIENTE] | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] | `grafana_I05.png`, `nube_I05_*` | [PENDIENTE] |
-| Mala versión | [PENDIENTE] | [PENDIENTE] | — | — | `nube_mala_version_*` | [PENDIENTE] |
-| I06 | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] | — | `nube_I06.txt` | [PENDIENTE] |
+**Fuente de las mediciones [PROBADO]:** el RTO se midió con `sondear.ps1` (una consulta por segundo desde la PC), que es la fuente principal definida en la sección 5. Grafana no estuvo disponible durante estas pruebas (ver 6.1).
+
+| Prueba | Qué se observó | RTO percibido | Evidencia | Estado |
+|---|---|---|---|---|
+| I01 | 3 instancias en 2 nodos y 2 zonas, `datos-v1`, también desde otra PC | — | `nube_I01_inicio.json`, `nube_I01_otro_pc.json` | Cumple |
+| I02a · pod | 120/120 OK; aparece el pod de reemplazo | **0 s** | `nube_I02_pod_r2.txt` | Cumple |
+| I02b · nodo | 295/300 OK; 4 timeouts seguidos y 1 aislado | **~12 s** | `nube_I02_nodo.txt` | Parcial |
+| I03 | 3 pods nuevos repartidos otra vez en 2 nodos | — | `nube_I03.json`, `nube_I03_recuperado.txt` | Cumple |
+| I04 | 120/120 OK durante el reemplazo de los 3 pods; `datos-v1` | **0 s** | `nube_I04_sondeo.txt`, `nube_I04.json` | Cumple |
+| I05 | 994 respuestas 503 con los 3 pods a la vez; PITR de RDS; sha256 idéntico | **19 min 50 s** (script: 865 s) · **RPO ≈ 6 min** | `nube_I05_*` | Cumple |
+| Mala versión | CI bloquea el PR; en EKS los 3 pods viejos siguen y `rollout undo` en ~2 s | **0 s** | `nube_mala_version_*` | Cumple |
+| I06 | No realizada | — | — | No realizado |
+
+### 6.1 Qué pasó con la observabilidad en la nube (honesto)
+- [PROBADO] La configuración pasa la validación de sintaxis y el CI. El 28-nov se empezó a instalar en EKS: el namespace `monitoring`, los Secrets y los CRD del Prometheus Operator quedaron creados en el clúster.
+- [NO COMPLETADO] La instalación completa no terminó a tiempo para las pruebas por la red de la PC de I5 (~50 KB/s):
+  1. El índice de charts de prometheus-community (>6 MB) no se alcanzaba a descargar. Ajuste: el script usa el registro OCI `ghcr.io`.
+  2. Helm 4 esperaba los recursos con *watch-list* y el watch se quedaba sin eventos. Ajuste: `KUBE_FEATURE_WatchListClient=false` en el script.
+- Por eso **no hay capturas de Grafana ni alertas recibidas**. Las pruebas se midieron con `sondear.ps1`, que es independiente del clúster.
+- Lección: instalar la observabilidad **antes** de las pruebas y desde una conexión estable (o desde CloudShell), y ensayar en local en la sesión 0.
 
 ### Lectura de I05 (fallo compartido)
 Cuando se dañan los datos en RDS, **los 3 pods fallan a la vez**: todos leen la misma base, el readiness (`/health`) responde 503 y Kubernetes saca los 3 del balanceo. El liveness (`/vivo`) sigue en 200, así que los pods **no** se reinician en bucle. Esto demuestra que más réplicas protegen contra fallos de instancia (I02), pero no contra fallos de datos: para eso se necesitan backups y restauración (I05) y, como mejora, RDS Multi-AZ.

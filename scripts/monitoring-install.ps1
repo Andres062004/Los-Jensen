@@ -39,6 +39,9 @@ $PSNativeCommandUseErrorActionPreference = $true
 $raiz = Split-Path $PSScriptRoot -Parent
 $mon = Join-Path $raiz "k8s/monitoring"
 $ns = "monitoring"
+# Helm 4 y kubectl recientes esperan por "watch-list"; con conexiones lentas el watch se
+# queda sin eventos y --wait falla aunque los recursos estén listos. Se usa el modo clásico.
+$env:KUBE_FEATURE_WatchListClient = "false"
 
 function Aplicar-Sondeo {
     $dns = $Alb
@@ -58,9 +61,10 @@ function Aplicar-Sondeo {
 if ($SoloSondeo) { Aplicar-Sondeo; return }
 
 Write-Host "== Repositorios de Helm"
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo update
+# Los charts de prometheus-community se toman del registro OCI (ghcr.io): así no se
+# descarga su índice (>6 MB), que con conexiones lentas supera el tiempo de espera.
+$promCharts = "oci://ghcr.io/prometheus-community/charts"
+helm repo add grafana https://grafana.github.io/helm-charts --force-update
 
 Write-Host "== Namespace $ns"
 kubectl create namespace $ns --dry-run=client -o yaml | kubectl apply -f -
@@ -98,7 +102,7 @@ if (-not $existe -or $CambiarWebhook) {
 Write-Host "== kube-prometheus-stack (Prometheus, Alertmanager, Grafana)"
 $kpsValores = @("-f", (Join-Path $mon "kps-values.yaml"))
 if ($Receptor -eq "discord") { $kpsValores += @("-f", (Join-Path $mon "kps-values-discord.yaml")) }
-helm upgrade --install kps prometheus-community/kube-prometheus-stack -n $ns @kpsValores --wait --timeout 10m
+helm upgrade --install kps "$promCharts/kube-prometheus-stack" -n $ns @kpsValores --wait --timeout 10m
 
 Write-Host "== Loki"
 helm upgrade --install loki grafana/loki -n $ns -f (Join-Path $mon "loki-values.yaml") --wait --timeout 10m
@@ -107,7 +111,7 @@ Write-Host "== Alloy (recolector de logs)"
 helm upgrade --install alloy grafana/alloy -n $ns -f (Join-Path $mon "alloy-values.yaml") --wait --timeout 5m
 
 Write-Host "== Blackbox exporter"
-helm upgrade --install blackbox prometheus-community/prometheus-blackbox-exporter -n $ns `
+helm upgrade --install blackbox "$promCharts/prometheus-blackbox-exporter" -n $ns `
     --set resources.requests.cpu=10m --set resources.requests.memory=32Mi --set resources.limits.memory=64Mi `
     --wait --timeout 5m
 
